@@ -51,8 +51,7 @@ if __name__ == '__main__':
         # start off with the artist we searched for
         playlists = []
         for artist in similar_artists:
-            playlist = build_playlist(client, "artist", artist)
-            if playlist: # make sure we have a song by this artist
+            if playlist := build_playlist(client, "artist", artist):
                 playlists.append(playlist)
         # check to see if playlist is empty
         status = client.status()
