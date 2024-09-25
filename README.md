@@ -1,5 +1,7 @@
 # sdpmpd - Smart Dynamic Playlists for MPD
 
+First go to last.fm and get your API key if you want to use similar artists. 
+
 config.json v1:
 ```json
 {
