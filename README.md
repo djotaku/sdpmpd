@@ -34,6 +34,7 @@ Phases
 - Using last.fm and/or spotify to enable "similar artist" mode <- done
 - smart, dynamic playlists <- done
 - use Pydantic to validate the playlist files
-- prevent songs already on the playlist from showing up, unless it's been a long time since they were played.
+- Test with non-artist playlists
+- prevent songs already on the playlist from showing being added, unless it's been a long time since they were played.
 - complex, smart, and dynamic playlists (ie using AND or NOT)
-- Create GUI
+- Create GUI or TUI with Textual?
