@@ -37,8 +37,8 @@ def get_config() -> Config:
     return Config(**loads(pathlib.Path(f'{xdg.XDG_CONFIG_HOME}/config.json').read_text()))
 
 
-def get_playlist_parameters(our_config: Config) -> DynamicPlaylist:
-    with open(f'{our_config.playlist_location}/{playlist_file}') as playlist_file_handle:
+def get_playlist_parameters(our_config: Config, our_playlist_file: str) -> DynamicPlaylist:
+    with open(f'{our_config.playlist_location}/{our_playlist_file}') as playlist_file_handle:
         try:
             our_playlist_parameters = DynamicPlaylist(**loads(playlist_file_handle.read()))
         except FileNotFoundError:
