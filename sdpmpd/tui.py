@@ -10,15 +10,22 @@ class PlaylistList(Static):
     config = main.get_config()
 
     list_of_playlists = ListView()
+    playlist_dict = {}
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.list_of_playlists.clear()
         path = Path(self.config.playlist_location)
         playlists = list(path.glob('*'))
-        playlist_dict = {item.name: item for item in playlists}
-        for key in playlist_dict:
-            self.list_of_playlists.append(ListItem(Label(key)))
+        self.playlist_dict = {item.name: item for item in playlists}
+        for key in self.playlist_dict:
+            self.list_of_playlists.append(ListItem(Label(key), name=key))
 
+    def on_list_view_selected(self, event: ListView.Selected):
+        playlist_name = event.item.name
+        file_in_path = self.playlist_dict[playlist_name]
+        playlist_params = main.get_playlist_parameters(self.config, playlist_name)
+        #app.query_one(PlaylistInfo).our_pretty_data.update(playlist_params)
+        app.query_one(PlaylistInfo).update_pretty(playlist_params)
 
 
     def compose(self) -> ComposeResult:
@@ -27,17 +34,26 @@ class PlaylistList(Static):
 
 
 class PlaylistInfo(Static):
-
+    config = main.get_config()
     our_pretty_data = Pretty(None, name="playlist_content", id="playlist_content")
+    playlist_parameters = None
 
-    def on_list_view_selected(self, event: ListView.Selected):
-        selected_playlist = event.item
-        config = main.get_config()
-        playlist_contents = main.get_playlist_parameters(config, selected_playlist.name)
-        self.our_pretty_data.update(playlist_contents)
+    def update_pretty(self, new_pretty):
+        self.our_pretty_data.update(new_pretty)
+        self.playlist_parameters = new_pretty
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        client = main.MPDClient()
+        client.connect("localhost", 6600)
+        compiled_search_results = main.compile_search_results(self.playlist_parameters, self.config, client)
+        main.update_playlist(compiled_search_results, client)
+
+        # still need to set up some kind of trigger so that the update playlist keeps running every second
+
 
     def compose(self) -> ComposeResult:
         yield self.our_pretty_data
+        yield Button()
 
 class SmartDynamicPlaylistApp(App):
 
