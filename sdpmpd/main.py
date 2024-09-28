@@ -73,7 +73,8 @@ def compile_search_results(our_playlist_parameters: DynamicPlaylist, our_config:
 
 def update_playlist(search_results: list, our_client: MPDClient):
      status = our_client.status()
-     if status['playlistlength'] == '0':
+     playlist_length = int(status.get('playlistlength'))
+     if  playlist_length == '0':
          # seed with 2 songs
          chosen_playlist = choice(search_results)
          our_client.add(choice(chosen_playlist)['file'])
@@ -81,10 +82,12 @@ def update_playlist(search_results: list, our_client: MPDClient):
          our_client.add(choice(chosen_playlist)['file'])
          our_client.play()
      status = our_client.status()
-     if int(status['song']) >= int(status['playlistlength']) - 1:
+     if status.get('state') == "stop" or int(status.get('song')) >= playlist_length - 1:
          chosen_playlist = choice(search_results)
          our_client.add(choice(chosen_playlist)[
                             'file'])  # will eventually want to make sure not adding a song currently on the playlist or at least not within the last X number of songs.
+         if status.get('state') == "stop":
+             our_client.play(playlist_length-1)
 
 if __name__ == '__main__':
     config = get_config()
