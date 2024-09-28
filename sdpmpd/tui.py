@@ -53,7 +53,7 @@ class PlaylistInfo(Static):
 
     def compose(self) -> ComposeResult:
         yield self.our_pretty_data
-        yield Button()
+        yield Button("Run Playlist", id="run_playlist")
 
 class SmartDynamicPlaylistApp(App):
 

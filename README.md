@@ -27,15 +27,18 @@ Go into the sdpmpd folder and launch with:
 
 python main.py name_of_playlist
 
+## Currently Implemented
+- dynamic playlists
+- Using last.fm to enable "similar artist" mode
+- smart, dynamic playlists
+- Basic TUI that runs a playlist
 
-Phases
-- dynamic playlists <- done
-- anything better than time.sleep to check for playlist changes in the loop?
-- Using last.fm and/or spotify to enable "similar artist" mode <- done
-- smart, dynamic playlists <- done
-- use Pydantic to validate the playlist files <- done
-- Test with non-artist playlists <- done
-- Create GUI or TUI with Textual?
+## TODO
+- CLI: anything better than time.sleep to check for playlist changes in the loop?
+- Create TUI with Textual
+  - figure out how to keep firing off the update_playlist function
+  - figure out how to stop that so that you can switch playlists
+  - make button only appear after a playlist selected?
+  - UI for editing/creating playlists
 - prevent songs already on the playlist from showing being added, unless it's been a long time since they were played.
-- complex, smart, and dynamic playlists (ie using AND or NOT)
-
+- complex, smart, and dynamic playlists (ie using AND, OR, NOT)
