@@ -37,8 +37,8 @@ def get_config() -> Config:
     return Config(**loads(pathlib.Path(f'{xdg.XDG_CONFIG_HOME}/config.json').read_text()))
 
 
-def get_playlist_parameters(our_config: Config) -> DynamicPlaylist:
-    with open(f'{our_config.playlist_location}/{playlist_file}') as playlist_file_handle:
+def get_playlist_parameters(our_config: Config, our_playlist_file: str) -> DynamicPlaylist:
+    with open(f'{our_config.playlist_location}/{our_playlist_file}') as playlist_file_handle:
         try:
             our_playlist_parameters = DynamicPlaylist(**loads(playlist_file_handle.read()))
         except FileNotFoundError:
@@ -50,11 +50,11 @@ def get_playlist_parameters(our_config: Config) -> DynamicPlaylist:
     return our_playlist_parameters
 
 
-def compile_search_results(our_playlist_parameters: DynamicPlaylist, our_config: Config)-> list:
+def compile_search_results(our_playlist_parameters: DynamicPlaylist, our_config: Config, our_client:MPDClient)-> list:
     playlists = []
-    if not playlist_parameters.similar:
-        search_results = search_database(client, our_playlist_parameters.tag_type, our_playlist_parameters.value,
-                                         playlist_parameters.strict)
+    if not our_playlist_parameters.similar:
+        search_results = search_database(our_client, our_playlist_parameters.tag_type, our_playlist_parameters.value,
+                                         our_playlist_parameters.strict)
         playlists.append(search_results)
     else:
         payload = {"artist": our_playlist_parameters.value, "api_key": our_config.last_fm_key, "format": "json"}
@@ -67,32 +67,35 @@ def compile_search_results(our_playlist_parameters: DynamicPlaylist, our_config:
             # purposely leaving this as a list of lists so that there can be more variety in the playlist
             # eg let's say you have lots of songs by artist A. If just combined them all, then it would randomly
             # select lots of songs by artist A to the detriment of the variety of the similar artists playlist
-            if playlist := search_database(client, "artist", artist):
+            if playlist := search_database(our_client, "artist", artist):
                 playlists.append(playlist)
     return playlists
 
-def update_playlist(search_results: list):
-     status = client.status()
-     if status['playlistlength'] == '0':
+def update_playlist(search_results: list, our_client: MPDClient):
+     status = our_client.status()
+     playlist_length = int(status.get('playlistlength'))
+     if  playlist_length == '0':
          # seed with 2 songs
          chosen_playlist = choice(search_results)
-         client.add(choice(chosen_playlist)['file'])
+         our_client.add(choice(chosen_playlist)['file'])
          chosen_playlist = choice(search_results)
-         client.add(choice(chosen_playlist)['file'])
-         client.play()
-     while True:
-         status = client.status()
-         if int(status['song']) >= int(status['playlistlength']) - 1:
-             chosen_playlist = choice(search_results)
-             client.add(choice(chosen_playlist)[
+         our_client.add(choice(chosen_playlist)['file'])
+         our_client.play()
+     status = our_client.status()
+     if status.get('state') == "stop" or int(status.get('song')) >= playlist_length - 1:
+         chosen_playlist = choice(search_results)
+         our_client.add(choice(chosen_playlist)[
                             'file'])  # will eventually want to make sure not adding a song currently on the playlist or at least not within the last X number of songs.
+         if status.get('state') == "stop":
+             our_client.play(playlist_length-1)
 
 if __name__ == '__main__':
     config = get_config()
     playlist_file = sys.argv[1]
-    playlist_parameters = get_playlist_parameters(config)
+    playlist_parameters = get_playlist_parameters(config, playlist_file)
     client = MPDClient()
     client.connect("localhost", 6600)
     compiled_search_results = compile_search_results(playlist_parameters, config)
-    update_playlist(compiled_search_results)
+    while True:
+        update_playlist(compiled_search_results)
     client.disconnect()
