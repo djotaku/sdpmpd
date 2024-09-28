@@ -25,7 +25,7 @@ class PlaylistList(Static):
         playlist_name = event.item.name
         file_in_path = self.playlist_dict[playlist_name]
         playlist_params = main.get_playlist_parameters(self.config, playlist_name)
-        # app.query_one(PlaylistInfo).our_pretty_data.update(playlist_params)
+        app.action_add_playlist_info()
         app.query_one(PlaylistInfo).update_pretty(playlist_params)
 
     def compose(self) -> ComposeResult:
@@ -41,8 +41,7 @@ class PlaylistInfo(Static):
     client = main.MPDClient()
 
     def on_mount(self):
-        print("Playlist info mounted....")
-        self.update_timer = self.set_interval(1 / 60, callback=self.add_next_song())
+        self.update_timer = self.set_interval(1, self.add_next_song, pause=True)
 
     def update_pretty(self, new_pretty):
         self.our_pretty_data.update(new_pretty)
@@ -57,18 +56,14 @@ class PlaylistInfo(Static):
                                                                            self.client)
                 main.update_playlist(self.compiled_search_results, self.client)
                 self.client.disconnect()
-                #self.update_timer = self.set_interval(1 / 60, self.add_next_song())
-                print(f"{self.update_timer._callback=}")
+                self.update_timer.resume()
             case "stop_playlist":
-                print("pause is being run")
-                print(f"{self.update_timer=}")
                 self.update_timer.pause()
 
     def add_next_song(self):
-        print("add_next_song called")
-        # self.client.connect("localhost", 6600)
-        # main.update_playlist(self.compiled_search_results, self.client)
-        # self.client.disconnect()
+        self.client.connect("localhost", 6600)
+        main.update_playlist(self.compiled_search_results, self.client)
+        self.client.disconnect()
 
     def compose(self) -> ComposeResult:
         yield self.our_pretty_data
@@ -83,8 +78,11 @@ class SmartDynamicPlaylistApp(App):
         yield Header()
         yield Footer()
         yield Horizontal(VerticalScroll(PlaylistList(name="playlist")),
-                         VerticalScroll(PlaylistInfo(name="playlist_info")))
+                         VerticalScroll(id="playlist_area"))
 
+    def action_add_playlist_info(self) -> None:
+        playlist_info = PlaylistInfo(name="playlist_info")
+        self.query_one("#playlist_area").mount(playlist_info)
 
 if __name__ == '__main__':
     app = SmartDynamicPlaylistApp()

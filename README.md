@@ -36,9 +36,6 @@ python main.py name_of_playlist
 ## TODO
 - CLI: anything better than time.sleep to check for playlist changes in the loop?
 - Create TUI with Textual
-  - figure out how to keep firing off the update_playlist function
-  - figure out how to stop that so that you can switch playlists
-  - make button only appear after a playlist selected?
   - UI for editing/creating playlists
 - prevent songs already on the playlist from showing being added, unless it's been a long time since they were played.
 - complex, smart, and dynamic playlists (ie using AND, OR, NOT)
