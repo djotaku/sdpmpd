@@ -32,10 +32,8 @@ python main.py name_of_playlist
 - Using last.fm to enable "similar artist" mode
 - smart, dynamic playlists
 - Basic TUI that runs a playlist
+- Duplicate songs should appear rarely unless you have selected a playlist with too few possible songs
 
 ## TODO
 - CLI: anything better than time.sleep to check for playlist changes in the loop?
-- Create TUI with Textual
-  - UI for editing/creating playlists
-- prevent songs already on the playlist from showing being added, unless it's been a long time since they were played.
 - complex, smart, and dynamic playlists (ie using AND, OR, NOT)
