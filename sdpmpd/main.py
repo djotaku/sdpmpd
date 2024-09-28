@@ -84,8 +84,14 @@ def update_playlist(search_results: list, our_client: MPDClient):
      status = our_client.status()
      if status.get('state') == "stop" or int(status.get('song')) >= playlist_length - 1:
          chosen_playlist = choice(search_results)
-         our_client.add(choice(chosen_playlist)[
-                            'file'])  # will eventually want to make sure not adding a song currently on the playlist or at least not within the last X number of songs.
+         song_to_add = choice(chosen_playlist)['file']
+         current_playlist = our_client.playlistinfo()
+         loop_count = 0
+         while song_to_add in current_playlist and loop_count < 200: # after 200 loops and still a repeat, give up on repeat prevention
+             chosen_playlist = choice(search_results)
+             song_to_add = choice(chosen_playlist)['file']
+             loop_count += 1
+         our_client.add(song_to_add)
          if status.get('state') == "stop":
              our_client.play(playlist_length-1)
 
