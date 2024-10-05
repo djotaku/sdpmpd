@@ -1,0 +1,18 @@
+[project]
+name = "sdpmpd"
+dynamic = ["version"]
+dependencies = [
+    "python-mpd2",
+    "xdgenvpy==2.4.0",
+    "requests",
+    "pydantic",
+    "textual"
+]
+description = "Creates a smart, dynamic playlist for mpd"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["mpd", "playlist"]
+
+[project.urls]
+Repository = "https://github.com/djotaku/sdpmpd"
+Issues = "https://github.com/djotaku/sdpmpd/issues"
