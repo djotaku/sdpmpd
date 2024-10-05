@@ -21,7 +21,7 @@ playlist file v1:
   "similar": true
 }
 ```
-Create a playlist at the past in your config. For now while there isn't a package:
+Create a playlist at the path in your config. For now while there isn't a package:
 
 Go into the sdpmpd folder and launch with:
 
